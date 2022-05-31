@@ -1,6 +1,42 @@
+class Bullet {
+    x;
+    y;
+
+    constructor(x, y){
+        this.x = x;
+        this.y = y;
+    }
+    update() {
+        this.y -= 10;
+    }
+
+    draw(context) {
+        context.fillStyle = "red";
+        context.beginPath();
+        context.arc(this.x, this.y, 5, 0, Math.PI * 2);
+        context.fill();
+    }
+
+}
+class Enemy {
+        x;
+        y;
+
+
+    constructor(x, y){
+        this.x = x;
+        this.y = y
+    }
+
+
+    draw(context) {}
+}
+
+// new Bullet(10, 20);
 let player = {
     x: 400,
     y: 580,
+    cooldown: 0,
     update: function(){
         if(keys.left && this.x > 10) {
             this.x -= 10;
@@ -13,6 +49,9 @@ let player = {
     }
     if(keys.down && this.y < 580) {
         this.y += 10;
+    };
+    if(this.cooldown > 0){
+        this.cooldown --
     }
     },
     draw: function(context){
@@ -24,6 +63,10 @@ let player = {
         context.lineTo(this.x + 10, this.y + 20);
         context.fill();
 
+    },
+    shoot: function(){
+        this.cooldown = 10;
+        return new Bullet(this.x, this.y)
     }
 };
 
@@ -33,11 +76,18 @@ let keys = {
     up: false,
     down: false,
     right: false,
-    left: false
+    left: false,
+    shoot: false,
 };
 
 function update() {
 player.update();
+
+if(keys.shoot && player.cooldown == 0){
+    let bullet = player.shoot();
+    bullets.push(bullet);
+}
+
     for(let index = 0; index < bullets.length; index++) {
         if(bullets[index].y < 0) {
             bullets.splice(index, 1);
@@ -77,10 +127,7 @@ function drawPlayer() {
     player.draw(context);
 
     for(let index = 0; index < bullets.length; index++) {
-        context.fillStyle = "red";
-        context.beginPath();
-        context.arc(bullets[index].x, bullets[index].y, 5, 0, Math.PI * 2);
-        context.fill();
+        bullets [index].draw(context);
     }
 }
 
@@ -100,10 +147,9 @@ function movePlayer(event) {
             break;
 
         case " ":
-            bullets.push( {
-                x: player.x,
-                y: player.y
-            } );
+            keys.shoot = true;
+            let bullet = new Bullet(player.x, player.y);
+            bullets.push(bullet);
             break;
     }
 
@@ -123,6 +169,8 @@ function keyUp(event) {
         case "ArrowDown":
             keys.down = false;
             break;
+            case " ":
+                keys.shoot = false;
     }
 }
 
