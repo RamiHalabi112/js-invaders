@@ -1,3 +1,6 @@
+const enemyTag = new Image();
+
+enemyTag.src = "enemy.jpg";
 class Bullet {
     x;
     y;
@@ -5,6 +8,7 @@ class Bullet {
     constructor(x, y){
         this.x = x;
         this.y = y;
+
     }
     update() {
         this.y -= 10;
@@ -25,12 +29,26 @@ class Enemy {
 
     constructor(x, y){
         this.x = x;
-        this.y = y
+        this.y = y;
+        this.cooldown = 0;
     }
 
 
-    draw(context) {}
+    draw(context) {
+        context.drawImage(enemyTag, this.x, this.y, 50, 50);
+    }
+
+    update(){
+        if(this.cooldown == 0){
+        this.x += Math.floor(Math.random() * 20 - 10);
+        this.cooldown = 20;
+        }
+        this.cooldown --; 
+
+    }
 }
+let enemies = [];
+
 
 // new Bullet(10, 20);
 let player = {
@@ -95,6 +113,9 @@ if(keys.shoot && player.cooldown == 0){
             bullets[index].y -= 10;
         }
     }
+    for(let index = 0; index < enemies.length; index++){
+        enemies[index].update();
+    }
     drawPlayer();
 }
 
@@ -108,6 +129,10 @@ function setup() {
     context.fillStyle = 'white';
     context.font = '48px Verdana';
     context.fillText("Space Invaders", 10, 50);
+
+const enemy = new Enemy(20, 20);
+
+enemies.push(enemy);
 }
 
 function drawPlayer() {
@@ -129,6 +154,10 @@ function drawPlayer() {
     for(let index = 0; index < bullets.length; index++) {
         bullets [index].draw(context);
     }
+
+    for(let index = 0; index < enemies.length; index++) {
+        enemies[index].draw(context);
+    }
 }
 
 function movePlayer(event) {
@@ -148,8 +177,6 @@ function movePlayer(event) {
 
         case " ":
             keys.shoot = true;
-            let bullet = new Bullet(player.x, player.y);
-            bullets.push(bullet);
             break;
     }
 
