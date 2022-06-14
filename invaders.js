@@ -31,21 +31,43 @@ class Enemy {
         this.x = x;
         this.y = y;
         this.cooldown = 0;
+        this.health = 20;
     }
 
 
     draw(context) {
-        context.drawImage(enemyTag, this.x, this.y, 50, 50);
+        if(this.health > 0){
+            context.drawImage(enemyTag, this.x, this.y, 50, 50);
+        }
     }
 
     update(){
         if(this.cooldown == 0){
         this.x += Math.floor(Math.random() * 20 - 10);
-        this.cooldown = 20;
+                    if(this.x <= 0){
+            this.x +=10;
         }
-        this.cooldown --; 
-
+        if(this.x >= 750){
+            this.x -= 10;
+        }
+        this.y += Math.floor(Math.random() * 20 - 10);
+        if(this.y <= 0){
+            this.y +=10;
+        }
+        if(this.y >= 550){
+            this.y -= 10;
+        }
+        this.cooldown = 15;
     }
+       this.cooldown --;
+    }
+    hit(bullet){
+        if(bullet.x >= this.x && bullet.x <= this.x + 50 && bullet.y >= this.y && bullet.y <= this.y + 50){
+            this.health -= 10;
+        }
+    }
+        
+    
 }
 let enemies = [];
 
@@ -115,7 +137,12 @@ if(keys.shoot && player.cooldown == 0){
     }
     for(let index = 0; index < enemies.length; index++){
         enemies[index].update();
+
+        for (let bulletIndex = 0; bulletIndex < bullets.length; bulletIndex++){
+            enemies[index].hit(bullets[bulletIndex]);
+        }
     }
+
     drawPlayer();
 }
 
@@ -151,13 +178,14 @@ function drawPlayer() {
     //context.fill();
     player.draw(context);
 
+    for(let index = 0; index < enemies.length; index++) {
+        enemies[index].draw(context);
+    }
     for(let index = 0; index < bullets.length; index++) {
         bullets [index].draw(context);
     }
 
-    for(let index = 0; index < enemies.length; index++) {
-        enemies[index].draw(context);
-    }
+
 }
 
 function movePlayer(event) {
