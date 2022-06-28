@@ -36,9 +36,8 @@ class Enemy {
 
 
     draw(context) {
-        if(this.health > 0){
             context.drawImage(enemyTag, this.x, this.y, 50, 50);
-        }
+        
     }
 
     update(){
@@ -62,8 +61,15 @@ class Enemy {
        this.cooldown --;
     }
     hit(bullet){
-        if(bullet.x >= this.x && bullet.x <= this.x + 50 && bullet.y >= this.y && bullet.y <= this.y + 50){
+        if(bullet.x >= this.x &&
+             bullet.x <= this.x + 50 &&
+              bullet.y >= this.y &&
+               bullet.y <= this.y + 50){
+
             this.health -= 10;
+            return true;
+        }else{
+            return false;
         }
     }
         
@@ -77,6 +83,7 @@ let player = {
     x: 400,
     y: 580,
     cooldown: 0,
+    score: 0,
     update: function(){
         if(keys.left && this.x > 10) {
             this.x -= 10;
@@ -94,7 +101,27 @@ let player = {
         this.cooldown --
     }
     },
+
+
+    Drawwin: function(context){
+        let Gameover
+
+        context.fillStyle = 'white';
+        context.font = '48px Verdana';
+        context.fillText(Gameover, 400, 240 );
+
+    },
     draw: function(context){
+
+
+        context.fillStyle = 'white';
+        context.font = '48px Verdana';
+        context.fillText("Score " + this.score, 10, 520 );
+
+
+
+
+
         context.fillStyle = "lightblue";
         // context.fillRect(390, 580, 20, 20);
         context.beginPath();
@@ -139,7 +166,16 @@ if(keys.shoot && player.cooldown == 0){
         enemies[index].update();
 
         for (let bulletIndex = 0; bulletIndex < bullets.length; bulletIndex++){
-            enemies[index].hit(bullets[bulletIndex]);
+
+            if(enemies[index].hit(bullets[bulletIndex])){
+                bullets.splice(bulletIndex, 1);
+                player.score += 1;
+            }
+
+        }
+        if(enemies[index].health <= 0){
+            enemies.splice(index, 1);
+            player.score += 10;
         }
     }
 
@@ -156,10 +192,15 @@ function setup() {
     context.fillStyle = 'white';
     context.font = '48px Verdana';
     context.fillText("Space Invaders", 10, 50);
+    
+    for (let count = 0; count <= 7; count++) {
+        let x = 100 * count + 20;
+        const enemy = new Enemy(x, 20);
 
-const enemy = new Enemy(20, 20);
+        enemies.push(enemy);
+    }
 
-enemies.push(enemy);
+
 }
 
 function drawPlayer() {
@@ -183,6 +224,14 @@ function drawPlayer() {
     }
     for(let index = 0; index < bullets.length; index++) {
         bullets [index].draw(context);
+    }
+    if(enemies.length == 0){
+    
+            context.fillStyle = 'white';
+            context.font = '48px Verdana';
+            context.fillText("Gameover", 400, 240 );
+    
+        
     }
 
 
